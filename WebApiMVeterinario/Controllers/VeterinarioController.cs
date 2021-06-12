@@ -32,7 +32,7 @@ namespace WebApiMVeterinario.Controllers
             var veterinario = await context.Veterinarios.FirstOrDefaultAsync(x => x.Id == id);
             if(veterinario == null)
             {
-                return NotFound();
+                return BadRequest("El veterinario fue eliminado o no existe");
             }
 
             return veterinario;

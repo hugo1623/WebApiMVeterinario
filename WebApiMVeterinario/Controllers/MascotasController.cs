@@ -25,10 +25,16 @@ namespace WebApiMVeterinario.Controllers
             return await context.Mascotas.ToListAsync();
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<Mascota>> Get(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Mascota>> GetById(int id)
         {
-            return await context.Mascotas.Include(x => x.Veterinario).FirstOrDefaultAsync(x => x.Id == id);
+            var mascota = await context.Mascotas.FirstOrDefaultAsync(x => x.Id == id);
+            if (mascota == null)
+            {
+                return BadRequest("La Mascota fue eliminada o no existe");
+            }
+
+            return mascota;
         }
 
         [HttpPost]
@@ -41,6 +47,39 @@ namespace WebApiMVeterinario.Controllers
             }
 
             context.Add(mascota);
+            await context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(Mascota mascota, int id)
+        {
+            if (mascota.Id != id)
+            {
+                return BadRequest("La mascota no coincide con el Id de la URL ");
+            }
+
+            var existe = await context.Mascotas.AnyAsync(x => x.Id == id);
+            if (!existe)
+            {
+                return NotFound();
+            }
+
+            context.Update(mascota);
+            await context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var existe = await context.Mascotas.AnyAsync(x => x.Id == id);
+            if (!existe)
+            {
+                return NotFound();
+            }
+
+            context.Remove(new Mascota() { Id = id });
             await context.SaveChangesAsync();
             return Ok();
         }
